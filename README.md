@@ -16,14 +16,14 @@ For a predictor of order \(p\), the current sample is approximated as
 
 where
 
-- \(a_1,a_2,\ldots,a_p\) are the prediction coefficients,
-- \(p\) is the predictor order.
+- a₁, a₂, ... aₚ  are the prediction coefficients.
+- p is the predictor order.
 
 The prediction error is defined as
 
-\[
-e(n)=y(n)-\hat{y}(n)
-\]
+
+e(n)= y(n) - ŷ(n) 
+
 
 The predictor coefficients are obtained by minimizing the mean-square prediction error, resulting in the **Yule–Walker equations**, which are solved efficiently using the **Levinson recursion algorithm**.
 
