@@ -12,9 +12,7 @@ The work employs the **Yule–Walker equations** and the **Levinson–Durbin rec
 
 For a predictor of order \(p\), the current sample is approximated as
 
-\[
-\hat{y}(n)=a_1y(n-1)+a_2y(n-2)+\cdots+a_py(n-p)
-\]
+ŷ(n) = a₁y(n−1) + a₂y(n−2) + ... + aₚy(n−p)
 
 where
 
