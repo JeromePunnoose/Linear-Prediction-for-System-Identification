@@ -1,223 +1,124 @@
-
-# Linear Prediction Based Speech Analysis and Synthesis
-
-A complete implementation of **Linear Predictive Coding (LPC)** for speech analysis and synthesis, including direct-form and lattice-form realizations, Levinson-Durbin recursion, and system identification using linear prediction.
-
----
+# Linear Prediction Based System Identification using Levinson Recursion and Lattice Realization
 
 ## Overview
 
-This project demonstrates how linear prediction can be used to model speech signals and reconstruct them efficiently. It covers the complete workflow from autocorrelation computation to lattice filter implementation and speech reconstruction.
+This project presents the implementation of **Linear Prediction (LP)** for the identification and modeling of an unknown linear system. Linear prediction is a fundamental signal processing technique in which the current sample of a signal is estimated as a linear combination of its past samples. By minimizing the mean-square prediction error, the predictor coefficients accurately represent the characteristics of the underlying system.
 
-The project also investigates the decorrelation and reconstruction properties of lattice filters and explores system identification using LPC techniques.
-
----
-
-## Features
-
-- Linear Predictive Coding (LPC)
-- Autocorrelation method
-- Levinson-Durbin recursion
-- Direct-form LPC analyzer
-- Direct-form LPC synthesizer
-- Analysis lattice filter
-- Synthesis lattice filter
-- Reflection coefficient computation
-- Prediction error analysis
-- Correlation analysis at each lattice stage
-- System identification using linear prediction
-- Python-based simulations and visualizations
-
----
-
-## Project Structure
-
-```
-Linear-Prediction-Speech-Analysis/
-│
-├── data/
-│   ├── input_speech.wav
-│   └── output_speech.wav
-│
-├── src/
-│   ├── analyzer.py
-│   ├── synthesizer.py
-│   ├── levinson.py
-│   ├── lattice_filter.py
-│   ├── autocorrelation.py
-│   ├── system_identification.py
-│   └── utils.py
-│
-├── figures/
-│
-├── report/
-│   └── Project_Report.pdf
-│
-├── requirements.txt
-├── README.md
-└── LICENSE
-```
+The work employs the **Yule–Walker equations** and the **Levinson–Durbin recursion algorithm** to determine the optimum predictor coefficients. These coefficients are then transformed into **reflection coefficients**, enabling the realization of both **analysis** and **synthesis lattice filters**. The lattice realization provides a numerically stable and modular implementation while preserving the physical interpretation of the model parameters.
 
 ---
 
 ## Theory
 
-### Linear Prediction
-
-A speech sample is predicted from previous samples as
+For a predictor of order \(p\), the current sample is approximated as
 
 \[
-\hat{x}(n)=\sum_{k=1}^{p}a_kx(n-k)
+\hat{y}(n)=a_1y(n-1)+a_2y(n-2)+\cdots+a_py(n-p)
 \]
 
 where
 
-- \(a_k\) are the LPC coefficients
-- \(p\) is the prediction order
+- \(a_1,a_2,\ldots,a_p\) are the prediction coefficients,
+- \(p\) is the predictor order.
 
-The prediction error is
+The prediction error is defined as
 
 \[
-e(n)=x(n)-\hat{x}(n)
+e(n)=y(n)-\hat{y}(n)
 \]
+
+The predictor coefficients are obtained by minimizing the mean-square prediction error, resulting in the **Yule–Walker equations**, which are solved efficiently using the **Levinson recursion algorithm**.
 
 ---
 
-### Autocorrelation Method
+## Methodology
 
-The autocorrelation sequence is computed as
+The complete implementation follows the steps below:
 
-\[
-R(k)=\sum_{n}x(n)x(n-k)
-\]
-
-The LPC coefficients are obtained by solving the Yule-Walker equations.
-
----
-
-### Levinson-Durbin Recursion
-
-The Levinson-Durbin algorithm efficiently computes
-
-- LPC coefficients
-- Reflection coefficients
-- Prediction error energy
-
-with computational complexity
-
-\[
-O(p^2)
-\]
-
-instead of
-
-\[
-O(p^3)
-\]
+1. The speech signal is divided into short-duration frames.
+2. The biased autocorrelation sequence is computed for each frame.
+3. The Yule–Walker equations are formed from the autocorrelation sequence.
+4. Levinson recursion is applied to obtain the optimum predictor coefficients.
+5. The predictor coefficients are converted into reflection coefficients.
+6. The reflection coefficients are used to realize the **analysis lattice filter**.
+7. The analysis lattice generates the forward and backward prediction errors, with the final forward prediction error representing the residual signal.
+8. The same reflection coefficients are used to construct the **synthesis lattice filter**, which reconstructs the original signal from the residual sequence.
+9. Correlation analysis is performed to demonstrate that the analysis lattice decorrelates the signal while the synthesis lattice restores the original correlation characteristics.
+10. The reconstruction error is evaluated to verify the accuracy of the identified model.
 
 ---
 
-### Lattice Filters
+## Lattice Filter Realization
 
-The project implements
+The project implements both lattice structures:
 
-- Analysis lattice filter
-- Synthesis lattice filter
+### Analysis Lattice Filter
 
-using reflection coefficients.
+- Converts the correlated speech signal into an approximately uncorrelated residual.
+- Produces forward and backward prediction errors at each lattice stage.
+- The final forward prediction error serves as the excitation (residual) signal.
 
-The forward prediction error is
+### Synthesis Lattice Filter
 
-\[
-e_m^{+}(n)=e_{m-1}^{+}(n)+k_me_{m-1}^{-}(n-1)
-\]
-
-The backward prediction error is
-
-\[
-e_m^{-}(n)=e_{m-1}^{-}(n-1)+k_me_{m-1}^{+}(n)
-\]
-
-where
-
-- \(k_m\) is the reflection coefficient of stage \(m\).
+- Uses the same reflection coefficients obtained from Levinson recursion.
+- Reconstructs the original speech signal from the residual sequence.
+- Demonstrates the inverse operation of the analysis lattice.
 
 ---
 
 ## System Identification
 
-The project demonstrates how an unknown linear system can be identified by
+The predictor coefficients obtained through linear prediction characterize the unknown system as an **autoregressive (AR) model**. The identified model can be represented as
 
-1. Exciting the system using an input signal
-2. Recording the system output
-3. Estimating the LPC model
-4. Recovering the system coefficients
-5. Comparing the estimated model with the original system
+\[
+H(z)=\frac{1}{1-\sum_{k=1}^{p}a_kz^{-k}}
+\]
 
----
-
-## Simulation Results
-
-The project includes
-
-- Input speech waveform
-- Output speech waveform
-- LPC spectrum
-- Prediction error signal
-- Autocorrelation plots
-- Reflection coefficients
-- Lattice stage outputs
-- Correlation at each lattice stage
-- Frequency response
-- Pole-zero plots
-- System identification results
+where the predictor coefficients define the poles of the system and the reflection coefficients serve as the lattice model parameters.
 
 ---
 
-## Technologies Used
+## Results
 
-- Python
-- NumPy
-- SciPy
-- Matplotlib
-- Jupyter Notebook
+The implementation demonstrates:
 
----
-
-## Future Improvements
-
-- Real-time speech analysis
-- LPC vocoder implementation
-- Adaptive lattice filters
-- Noise reduction
-- Higher-order prediction models
-- Real-time audio interface
-- Deep learning comparison
+- Estimation of optimum predictor coefficients.
+- Computation of reflection coefficients using Levinson recursion.
+- Realization of analysis and synthesis lattice filters.
+- Generation of forward and backward gapped functions.
+- Decorrelation of the speech signal through the analysis lattice.
+- Reconstruction of the original speech using the synthesis lattice.
+- Low reconstruction error, validating the identified system model.
 
 ---
 
-## References
+## Applications
 
-1. J. Makhoul, "Linear Prediction: A Tutorial Review," Proceedings of the IEEE, 1975.
-
-2. L. R. Rabiner and R. W. Schafer, *Digital Processing of Speech Signals*.
-
-3. S. Haykin, *Adaptive Filter Theory*.
-
-4. A. V. Oppenheim and R. W. Schafer, *Discrete-Time Signal Processing*.
-
----
-
-## Author
-
-**Jerome Punnoose**
-
-Department of Electronics and Communication Engineering
-
-Project: **Linear Prediction Based Speech Analysis and Synthesis**
+- Speech Analysis and Synthesis
+- Speech Coding
+- System Identification
+- Adaptive Signal Processing
+- Linear Predictive Coding (LPC)
+- Digital Communication
+- Audio Signal Modeling
 
 ---
 
-## License
+## Key Concepts
 
-This project is intended for educational and research purposes.
+- Linear Prediction
+- Yule–Walker Equations
+- Levinson–Durbin Recursion
+- Autoregressive (AR) Modeling
+- Reflection Coefficients
+- Prediction Error Filter
+- Analysis Lattice Filter
+- Synthesis Lattice Filter
+- Gapped Functions
+- System Identification
+
+---
+
+## Conclusion
+
+This project demonstrates the application of linear prediction for system identification by combining statistical estimation with lattice filter realization. The predictor coefficients obtained through the Yule–Walker equations and Levinson recursion accurately model the system, while the lattice implementation provides a stable realization using reflection coefficients. The successful reconstruction of the original signal from the residual sequence verifies the effectiveness of the identified model and highlights the importance of linear prediction in modern digital signal processing applications.
